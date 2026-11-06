@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/incident_provider.dart';
+import '../utils/constants.dart';
 import '../utils/format.dart';
 import '../widgets/app_card.dart';
 import '../widgets/incident_thumb.dart';
@@ -60,7 +61,8 @@ class IncidentDetailsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Incident Details'),
         actions: [
-          if (isOwner)
+          // Matches the security rule: only the owner, only while "Submitted".
+          if (isOwner && incident.status == IncidentStatus.submitted)
             IconButton(
               icon: const Icon(Icons.delete_outline),
               tooltip: 'Delete report',

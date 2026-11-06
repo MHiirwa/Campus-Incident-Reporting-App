@@ -54,6 +54,8 @@ class AuthService {
 
   Future<void> reloadUser() async {
     await _auth.currentUser?.reload();
+    // Refresh the token so the security rules see email_verified = true.
+    await _auth.currentUser?.getIdToken(true);
   }
 
   Future<void> logout() => _auth.signOut();
