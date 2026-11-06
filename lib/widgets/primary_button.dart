@@ -16,8 +16,12 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: FilledButton(
+        style: FilledButton.styleFrom(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
         onPressed: loading ? null : onPressed,
         child: loading
             ? const SizedBox(
@@ -25,7 +29,9 @@ class PrimaryButton extends StatelessWidget {
                 width: 22,
                 child: CircularProgressIndicator(strokeWidth: 2.5),
               )
-            : Text(label, style: const TextStyle(fontSize: 16)),
+            : Text(label,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600)),
       ),
     );
   }

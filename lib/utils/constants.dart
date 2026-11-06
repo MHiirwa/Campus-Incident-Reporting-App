@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class UserRole {
   static const student = 'student';
   static const staff = 'staff';
@@ -21,9 +23,26 @@ class IncidentCategory {
     'Safety',
     'Facilities',
   ];
+
+  static IconData iconFor(String category) {
+    switch (category) {
+      case 'Water':
+        return Icons.water_drop_outlined;
+      case 'Electricity':
+        return Icons.bolt;
+      case 'Furniture':
+        return Icons.chair_outlined;
+      case 'Sanitation':
+        return Icons.delete_outline;
+      case 'Safety':
+        return Icons.shield_outlined;
+      default:
+        return Icons.apartment;
+    }
+  }
 }
 
 class AllowedEmailDomains {
   // Change these if your school uses different domains
-  static const all = ['alustudent.com', 'alueducation.com'];
+  static const all = ['alustudent.com', 'alueducation.com', 'gmail.com'];
 }

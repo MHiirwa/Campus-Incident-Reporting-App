@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
+import 'providers/incident_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/verify_email_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_shell.dart';
 import 'services/auth_service.dart';
+import 'services/incident_service.dart';
+import 'utils/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +27,18 @@ class CampusIncidentApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider(AuthService())),
+        ChangeNotifierProxyProvider<AuthProvider, IncidentProvider>(
+          create: (_) => IncidentProvider(IncidentService()),
+          update: (_, auth, incidents) {
+            incidents!.onAuthChanged(auth.isLoggedIn && auth.isVerified);
+            return incidents;
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'Campus Incident Reporter',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
+        theme: AppTheme.light,
         home: const AuthGate(),
       ),
     );
@@ -48,6 +58,6 @@ class AuthGate extends StatelessWidget {
     }
     if (!auth.isLoggedIn) return const LoginScreen();
     if (!auth.isVerified) return const VerifyEmailScreen();
-    return const HomeScreen();
+    return const MainShell();
   }
 }
