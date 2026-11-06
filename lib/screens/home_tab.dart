@@ -161,7 +161,7 @@ class _ReportBanner extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
-          colors: [Color(0xFF5B3DF5), Color(0xFF8E7BFF)],
+          colors: [AppTheme.accent, Color(0xFFFFA07F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -208,7 +208,7 @@ class _ReportBanner extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            backgroundColor: AppTheme.primary,
+                            backgroundColor: AppTheme.accent,
                             child:
                                 Icon(Icons.add, color: Colors.white, size: 20),
                           ),

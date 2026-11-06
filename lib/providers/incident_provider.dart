@@ -86,6 +86,7 @@ class IncidentProvider extends ChangeNotifier {
     required String category,
     required String location,
     required AppUser reporter,
+    String? imageUrl,
   }) async {
     _submitting = true;
     _error = null;
@@ -101,6 +102,7 @@ class IncidentProvider extends ChangeNotifier {
         status: IncidentStatus.submitted,
         reporterId: reporter.uid,
         reporterName: reporter.name,
+        imageUrl: imageUrl,
         createdAt: now,
         updatedAt: now,
       ));

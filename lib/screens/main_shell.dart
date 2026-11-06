@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 import 'home_tab.dart';
 import 'profile_tab.dart';
 import 'reports_tab.dart';
+import 'staff/staff_dashboard.dart';
 import 'student/submit_incident_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -18,13 +22,16 @@ class _MainShellState extends State<MainShell> {
   void _go(int i) => setState(() => _index = i);
 
   void _openReport() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const SubmitIncidentScreen()),
-    );
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const SubmitIncidentScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
+    if (context.watch<AuthProvider>().isStaff) {
+      return const _StaffShell();
+    }
+
     return Scaffold(
       body: IndexedStack(
         index: _index,
@@ -37,7 +44,7 @@ class _MainShellState extends State<MainShell> {
       floatingActionButton: FloatingActionButton(
         onPressed: _openReport,
         tooltip: 'Report an incident',
-        backgroundColor: AppTheme.primary,
+        backgroundColor: AppTheme.accent,
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, size: 30),
@@ -81,6 +88,43 @@ class _MainShellState extends State<MainShell> {
   }
 }
 
+class _StaffShell extends StatefulWidget {
+  const _StaffShell();
+
+  @override
+  State<_StaffShell> createState() => _StaffShellState();
+}
+
+class _StaffShellState extends State<_StaffShell> {
+  int _index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _index,
+        children: const [StaffDashboard(), ProfileTab()],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _index,
+        onTap: (index) => setState(() => _index = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _NavItem extends StatelessWidget {
   final IconData icon;
   final IconData activeIcon;
@@ -108,12 +152,14 @@ class _NavItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(selected ? activeIcon : icon, color: color),
-            Text(label,
-                style: TextStyle(
-                    fontSize: 11,
-                    color: color,
-                    fontWeight:
-                        selected ? FontWeight.w700 : FontWeight.w500)),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: color,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),

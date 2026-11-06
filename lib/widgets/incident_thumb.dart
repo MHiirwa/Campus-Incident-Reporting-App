@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/incident.dart';
-import '../utils/app_theme.dart';
 import '../utils/constants.dart';
 
 /// Shows the incident photo if there is one, otherwise a category icon.
@@ -16,12 +15,13 @@ class IncidentThumb extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.10),
+        color: IncidentCategory.colorFor(incident.category)
+            .withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         IncidentCategory.iconFor(incident.category),
-        color: AppTheme.primary,
+        color: IncidentCategory.colorFor(incident.category),
         size: size * 0.45,
       ),
     );
