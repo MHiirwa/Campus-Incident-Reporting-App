@@ -63,3 +63,8 @@ class AllowedEmailDomains {
   // Change these if your school uses different domains
   static const all = ['alustudent.com', 'alueducation.com', 'alu.edu'];
 }
+
+class CloudinaryConfig {
+  static const cloudName = 'campus-incident-maxime-2026';
+  static const uploadPreset = 'campus-incident-maxime-2026';
+}
