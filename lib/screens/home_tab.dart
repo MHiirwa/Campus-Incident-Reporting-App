@@ -111,7 +111,7 @@ class _StudentHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF087F7D), Color(0xFF20AAA0)],
+          colors: [Color(0xFF0D8B87), Color(0xFF0D8B87)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
