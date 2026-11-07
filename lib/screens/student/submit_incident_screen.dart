@@ -163,7 +163,7 @@ class _SubmitIncidentScreenState extends State<SubmitIncidentScreen> {
                 const SizedBox(height: 16),
                 AppTextField(
                   controller: _locationCtrl,
-                  label: 'Location (e.g. Block B, Room 204)',
+                  label: 'Location',
                   icon: Icons.place_outlined,
                   validator: (v) => Validators.required(v, 'Location'),
                 ),
