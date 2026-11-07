@@ -72,13 +72,16 @@ class _SubmitIncidentScreenState extends State<SubmitIncidentScreen> {
         ),
       );
       if (ok) Navigator.of(context).pop();
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Could not upload the photo. Please try again.'),
+          content: Text(
+            'Could not upload the photo. Check your connection and upload configuration.',
+          ),
         ),
       );
+      debugPrint('Incident photo upload failed: $error');
     } finally {
       if (mounted) setState(() => _uploadingPhoto = false);
     }

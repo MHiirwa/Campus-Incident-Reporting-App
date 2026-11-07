@@ -65,6 +65,6 @@ class AllowedEmailDomains {
 }
 
 class CloudinaryConfig {
-  static const cloudName = 'campus-incident-maxime-2026';
+  static const cloudName = 'k89apvri';
   static const uploadPreset = 'campus-incident-maxime-2026';
 }

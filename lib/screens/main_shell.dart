@@ -41,45 +41,39 @@ class _MainShellState extends State<MainShell> {
           const ProfileTab(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openReport,
-        tooltip: 'Report an incident',
-        backgroundColor: AppTheme.accent,
-        foregroundColor: Colors.white,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, size: 30),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        height: 76,
+        height: 82,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _NavItem(
-              icon: Icons.home_outlined,
-              activeIcon: Icons.home,
-              label: 'Home',
-              selected: _index == 0,
-              onTap: () => _go(0),
+            Expanded(
+              child: _NavItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'Home',
+                selected: _index == 0,
+                onTap: () => _go(0),
+              ),
             ),
-            _NavItem(
-              icon: Icons.description_outlined,
-              activeIcon: Icons.description,
-              label: 'Reports',
-              selected: _index == 1,
-              onTap: () => _go(1),
+            Expanded(
+              child: _NavItem(
+                icon: Icons.description_outlined,
+                activeIcon: Icons.description,
+                label: 'Reports',
+                selected: _index == 1,
+                onTap: () => _go(1),
+              ),
             ),
-            const SizedBox(width: 56),
-            _NavItem(
-              icon: Icons.person_outline,
-              activeIcon: Icons.person,
-              label: 'Profile',
-              selected: _index == 2,
-              onTap: () => _go(2),
+            Expanded(child: _ReportNavItem(onTap: _openReport)),
+            Expanded(
+              child: _NavItem(
+                icon: Icons.person_outline,
+                activeIcon: Icons.person,
+                label: 'Profile',
+                selected: _index == 2,
+                onTap: () => _go(2),
+              ),
             ),
           ],
         ),
@@ -110,10 +104,14 @@ class _StaffShellState extends State<_StaffShell> {
         backgroundColor: Colors.white,
         selectedItemColor: AppTheme.primary,
         unselectedItemColor: const Color(0xFF718096),
-        selectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-        unselectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w800,
+          fontSize: 11,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 11,
+        ),
         currentIndex: _index,
         onTap: (index) => setState(() => _index = index),
         items: const [
@@ -156,13 +154,7 @@ class _NavItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected
-              ? AppTheme.primary.withValues(alpha: 0.12)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -170,10 +162,45 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 11,
                 color: color,
                 fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportNavItem extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ReportNavItem({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.add_circle, color: AppTheme.accent, size: 25),
+            SizedBox(height: 2),
+            Text(
+              'Report',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

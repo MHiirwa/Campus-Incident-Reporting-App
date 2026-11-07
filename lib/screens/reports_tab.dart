@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/incident_provider.dart';
+import '../utils/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/filter_chips_row.dart';
 import '../widgets/report_card.dart';
@@ -28,8 +30,11 @@ class _ReportsTabState extends State<ReportsTab> {
   @override
   Widget build(BuildContext context) {
     final data = context.watch<IncidentProvider>();
-    final results =
-        data.filtered(query: _query, status: _status, category: _category);
+    final results = data.filtered(
+      query: _query,
+      status: _status,
+      category: _category,
+    );
 
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
@@ -43,8 +48,10 @@ class _ReportsTabState extends State<ReportsTab> {
       list = Center(child: Text(data.error!));
     } else if (results.isEmpty) {
       list = Center(
-        child: Text('No reports match your search.',
-            style: TextStyle(color: Colors.grey.shade600)),
+        child: Text(
+          'No reports match your search.',
+          style: TextStyle(color: Colors.grey.shade600),
+        ),
       );
     } else {
       list = ListView.builder(
@@ -59,10 +66,52 @@ class _ReportsTabState extends State<ReportsTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Text('Reports',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Reports',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Track and review campus incidents',
+                        style: TextStyle(
+                          color: Color(0xFF718096),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    '${results.length}',
+                    style: const TextStyle(
+                      color: AppTheme.primary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -95,14 +144,14 @@ class _ReportsTabState extends State<ReportsTab> {
             allLabel: 'All status',
             onSelected: (s) => setState(() => _status = s),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           FilterChipsRow(
             options: IncidentCategory.all,
             selected: _category,
             allLabel: 'All categories',
             onSelected: (c) => setState(() => _category = c),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Expanded(child: list),
         ],
       ),

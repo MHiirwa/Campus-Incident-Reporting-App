@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/auth_provider.dart';
 import '../providers/incident_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/report_card.dart';
 import '../widgets/section_header.dart';
-import '../widgets/stat_tile.dart';
 import 'student/submit_incident_screen.dart';
 
 class HomeTab extends StatelessWidget {
   final VoidCallback onSeeAll;
+
   const HomeTab({super.key, required this.onSeeAll});
 
   @override
@@ -18,52 +19,23 @@ class HomeTab extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final data = context.watch<IncidentProvider>();
     final user = auth.appUser;
-
-    // Students see their own numbers, staff see everything.
     final scopeId = auth.isStaff ? null : user?.uid;
     final recent = data.filtered(reporterId: scopeId).take(3).toList();
-
     final firstName = (user?.name ?? '').trim().split(' ').first;
     final initial = firstName.isEmpty ? '?' : firstName[0].toUpperCase();
 
     return SafeArea(
       bottom: false,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 28),
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Hello, $firstName 👋',
-                          style: const TextStyle(
-                              fontSize: 26, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 4),
-                      const Text('Help make our campus safer.',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600)),
-                      Text('Report issues and track their resolution.',
-                          style: TextStyle(color: Colors.grey.shade600)),
-                    ],
-                  ),
-                ),
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
-                  child: Text(initial,
-                      style: const TextStyle(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 20)),
-                ),
-              ],
-            ),
+          _StudentHeader(
+            firstName: firstName,
+            initial: initial,
+            data: data,
+            scopeId: scopeId,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: _ReportBanner(),
@@ -71,59 +43,21 @@ class HomeTab extends StatelessWidget {
           const SizedBox(height: 24),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: SectionHeader(title: 'Report Summary'),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.description_outlined,
-                    color: AppTheme.primary,
-                    value: data.count(reporterId: scopeId),
-                    label: auth.isStaff ? 'All Reports' : 'My Reports',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.schedule,
-                    color: AppTheme.statusColor(IncidentStatus.inProgress),
-                    value: data.count(
-                        status: IncidentStatus.inProgress,
-                        reporterId: scopeId),
-                    label: 'In Progress',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.check_circle_outline,
-                    color: AppTheme.statusColor(IncidentStatus.resolved),
-                    value: data.count(
-                        status: IncidentStatus.resolved, reporterId: scopeId),
-                    label: 'Resolved',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.error_outline,
-                    color: AppTheme.statusColor(IncidentStatus.submitted),
-                    value: data.count(
-                        status: IncidentStatus.submitted, reporterId: scopeId),
-                    label: 'Submitted',
-                  ),
-                ),
-              ],
+            child: Text(
+              'Quick report',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF102A43),
+              ),
             ),
           ),
+          const SizedBox(height: 12),
+          _QuickCategories(onTap: (_) => _openReport(context)),
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SectionHeader(title: 'Recent Reports', onSeeAll: onSeeAll),
+            child: SectionHeader(title: 'Recent reports', onSeeAll: onSeeAll),
           ),
           if (data.loading)
             const Padding(
@@ -139,13 +73,188 @@ class HomeTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(32),
               child: Center(
-                child: Text('No reports yet. Tap + to add one.',
-                    style: TextStyle(color: Colors.grey.shade600)),
+                child: Text(
+                  'No reports yet. Tap + to add one.',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
               ),
             )
           else
-            ...recent.map((i) => ReportCard(incident: i)),
+            ...recent.map((incident) => ReportCard(incident: incident)),
         ],
+      ),
+    );
+  }
+
+  static void _openReport(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const SubmitIncidentScreen()));
+  }
+}
+
+class _StudentHeader extends StatelessWidget {
+  final String firstName;
+  final String initial;
+  final IncidentProvider data;
+  final String? scopeId;
+
+  const _StudentHeader({
+    required this.firstName,
+    required this.initial,
+    required this.data,
+    required this.scopeId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF087F7D), Color(0xFF20AAA0)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Good evening, $firstName',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Help keep our campus safe and running smoothly.',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              CircleAvatar(
+                radius: 27,
+                backgroundColor: AppTheme.accent,
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 360;
+              return Row(
+                children: [
+                  _HeaderMetric(
+                    icon: Icons.description_rounded,
+                    value: data.count(reporterId: scopeId),
+                    label: 'My reports',
+                    compact: compact,
+                  ),
+                  _HeaderMetric(
+                    icon: Icons.assignment_rounded,
+                    value: data.count(
+                      status: IncidentStatus.submitted,
+                      reporterId: scopeId,
+                    ),
+                    label: 'Submitted',
+                    compact: compact,
+                  ),
+                  _HeaderMetric(
+                    icon: Icons.autorenew_rounded,
+                    value: data.count(
+                      status: IncidentStatus.inProgress,
+                      reporterId: scopeId,
+                    ),
+                    label: 'In progress',
+                    compact: compact,
+                  ),
+                  _HeaderMetric(
+                    icon: Icons.check_circle_rounded,
+                    value: data.count(
+                      status: IncidentStatus.resolved,
+                      reporterId: scopeId,
+                    ),
+                    label: 'Resolved',
+                    compact: compact,
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderMetric extends StatelessWidget {
+  final IconData icon;
+  final int value;
+  final String label;
+  final bool compact;
+
+  const _HeaderMetric({
+    required this.icon,
+    required this.value,
+    required this.label,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 5),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(17),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.white, size: compact ? 18 : 20),
+            SizedBox(height: compact ? 3 : 5),
+            Text(
+              '$value',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.86),
+                fontSize: compact ? 9 : 10,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -171,8 +280,11 @@ class _ReportBanner extends StatelessWidget {
           Positioned(
             right: -12,
             top: 10,
-            child: Icon(Icons.apartment_rounded,
-                size: 120, color: Colors.white.withValues(alpha: 0.18)),
+            child: Icon(
+              Icons.campaign_rounded,
+              size: 118,
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -182,10 +294,11 @@ class _ReportBanner extends StatelessWidget {
                 const Text(
                   'See an issue\non campus?',
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      height: 1.15),
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    height: 1.15,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -198,10 +311,7 @@ class _ReportBanner extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const SubmitIncidentScreen()),
-                    ),
+                    onTap: () => HomeTab._openReport(context),
                     child: const Padding(
                       padding: EdgeInsets.all(10),
                       child: Row(
@@ -209,18 +319,27 @@ class _ReportBanner extends StatelessWidget {
                           CircleAvatar(
                             radius: 16,
                             backgroundColor: AppTheme.accent,
-                            child:
-                                Icon(Icons.add, color: Colors.white, size: 20),
+                            child: Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                           SizedBox(width: 12),
                           Expanded(
-                            child: Text('Report an Issue',
-                                style: TextStyle(
-                                    color: AppTheme.primary,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16)),
+                            child: Text(
+                              'Report an issue',
+                              style: TextStyle(
+                                color: AppTheme.primary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
-                          Icon(Icons.chevron_right, color: AppTheme.primary),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            color: AppTheme.primary,
+                          ),
                         ],
                       ),
                     ),
@@ -230,6 +349,81 @@ class _ReportBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _QuickCategories extends StatelessWidget {
+  final ValueChanged<String> onTap;
+
+  const _QuickCategories({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 132,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        scrollDirection: Axis.horizontal,
+        itemCount: IncidentCategory.all.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
+        itemBuilder: (_, index) {
+          final category = IncidentCategory.all[index];
+          final color = IncidentCategory.colorFor(category);
+          return GestureDetector(
+            onTap: () => onTap(category),
+            child: SizedBox(
+              width: 92,
+              child: Column(
+                children: [
+                  Container(
+                    width: 78,
+                    height: 78,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.13),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          IncidentCategory.iconFor(category),
+                          color: color,
+                          size: 29,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    category,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF102A43),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
